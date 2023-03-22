@@ -151,3 +151,47 @@ void OpenSession(std::istream& cin, std::map<mapKeyType, mapValueType>& dict, Er
 		}
 	}
 }
+
+bool NeedToSaveDict()
+{
+	std::string userAnswer;
+	while (true)
+	{
+		std::cout << "Словарь был изменен. Вы хотите сохранить изменения? (Y/N)" << std::endl;
+		getline(std::cin, userAnswer);
+		if ((userAnswer == "Y") || (userAnswer == "y"))
+		{
+			return true;
+		}
+		else if ((userAnswer == "N") || (userAnswer == "n"))
+		{
+			return false;
+		}
+	}
+}
+
+void SaveDictToFile(const std::optional<std::string>& fileName, const std::map<mapKeyType, mapValueType>& dict, ErrorCode& errorCode)
+{
+	const std::string DEFAULT_FILENAME = "dict.txt";
+	std::string fileToOpen = fileName ? *fileName : DEFAULT_FILENAME;
+	std::ofstream outputFile(fileToOpen);
+	if (outputFile.is_open())
+	{
+		for (const auto& [key, value]: dict)
+		{
+			outputFile << key;
+			std::copy(value.begin(), value.end(), std::ostream_iterator<std::string>(outputFile, " "));
+			outputFile << std::endl;
+		}
+		outputFile.flush();
+
+		if (!outputFile)
+		{
+			errorCode = ErrorCode::FILE_WRITING_ERROR;
+		}
+	}
+	else
+	{
+		errorCode = ErrorCode::FILE_WRITING_ERROR;
+	}
+}

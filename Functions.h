@@ -7,12 +7,14 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <cstring>
 
 enum class ErrorCode
 {
 	SUCCESS,
 	SUCCESS_MAP_CHANGED,
 	FILE_OPENING_ERROR,
+	FILE_WRITING_ERROR,
 	READ_MAP_FROM_FILE_ERROR,
 	READ_EMPTY_LINE_FROM_FILE
 };
@@ -34,4 +36,6 @@ std::map<mapKeyType, mapValueType> GetEngRusDictFromFile(const std::optional<std
 void OpenSession(std::istream& cin, std::map<mapKeyType, mapValueType>& dict, ErrorCode& errorCode);
 std::optional<mapValueType> GetValueFromDictByKey(const std::map<mapKeyType, mapValueType>& dict, const std::string& key);
 void InsertValueToDict(std::map<mapKeyType, mapValueType>& dict, mapKeyType key, const mapValueType& value);
+bool NeedToSaveDict();
+void SaveDictToFile(const std::optional<std::string>& fileName, const std::map<mapKeyType, mapValueType>& dict, ErrorCode& errorCode);
 #endif //DICTIONARY_FUNCTIONS_H
