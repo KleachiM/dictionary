@@ -3,9 +3,15 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	auto fileName = ParseArgs(argc, argv);
-
 	ErrorCode errorCode = ErrorCode::SUCCESS;
+	auto fileName = ParseArgs(argc, argv, errorCode);
+
+	if (errorCode == ErrorCode::BAD_ARGS_COUNT)
+	{
+		std::cout << "Неправильное количество аргументов" << std::endl;
+		std::cout << "Пример вызова функции: ./dictionary <путь к файлу со словарем (при наличии)>" << std::endl;
+		return EXIT_FAILURE;
+	}
 
 	map<mapKeyType , mapValueType> dict = GetEngRusDictFromFile(fileName, errorCode);
 

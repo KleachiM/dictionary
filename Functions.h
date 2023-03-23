@@ -13,6 +13,7 @@ enum class ErrorCode
 {
 	SUCCESS,
 	SUCCESS_MAP_CHANGED,
+	BAD_ARGS_COUNT,
 	FILE_OPENING_ERROR,
 	FILE_WRITING_ERROR,
 	READ_MAP_FROM_FILE_ERROR,
@@ -28,7 +29,7 @@ struct MapElem
 	mapValueType value;
 };
 
-std::optional<std::string> ParseArgs(int argc, char* argv[]);
+std::optional<std::string> ParseArgs(int argc, char* argv[], ErrorCode& errorCode);
 std::ifstream OpenFileForReading(const std::string & fileName);
 MapElem GetMapElementFromString(const std::string& line, ErrorCode& errorCode);
 std::map<mapKeyType, mapValueType> ReadMapFromFile(const std::string& fileName, ErrorCode& errorCode);

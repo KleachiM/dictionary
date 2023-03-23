@@ -5,9 +5,14 @@ TEST_CASE("parse args")
 {
 	std::string param1 = "progName";
 	std::string param2 = "fileName";
+	std::string param3 = "bad param";
+	ErrorCode errorCode = ErrorCode::SUCCESS;
 	char* tstArgv[] = {param1.data(), param2.data(), NULL};
-	REQUIRE(ParseArgs(2, tstArgv) == "fileName");
-	REQUIRE(ParseArgs(1, tstArgv) == std::nullopt);
+	char* badArgv[] = {param1.data(), param2.data(), param3.data(), NULL};
+	REQUIRE(ParseArgs(2, tstArgv, errorCode) == "fileName");
+	REQUIRE(ParseArgs(1, tstArgv, errorCode) == std::nullopt);
+	REQUIRE(ParseArgs(3, badArgv, errorCode) == std::nullopt);
+	REQUIRE(errorCode == ErrorCode::BAD_ARGS_COUNT);
 }
 
 // GetMapElementFromString

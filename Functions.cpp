@@ -1,19 +1,29 @@
 #include "Functions.h"
 
-std::optional<std::string> ParseArgs(int argc, char** argv)
+std::optional<std::string> ParseArgs(int argc, char** argv, ErrorCode& errorCode)
 {
-	if (argc != 2)
+	/*if (argc != 2)
 		return std::nullopt;
-	return argv[1];
+	return argv[1];*/
+	if (argc > 2)
+	{
+		errorCode = ErrorCode::BAD_ARGS_COUNT;
+		return std::nullopt;
+	}
+	else if (argc == 2)
+	{
+		return argv[1];
+	}
+	return std::nullopt;
 }
 
 std::ifstream OpenFileForReading(const std::string & fileName)
 {
 	std::ifstream strm(fileName);
-	return move(strm);
+	return move(strm);//TODO: почему что-то с std, а что-то без
 }
 
-MapElem GetMapElementFromString(const std::string& line, ErrorCode& errorCode)
+MapElem GetMapElementFromString(const std::string& line, ErrorCode& errorCode)//TODO: добавить конкретики в именование
 {
 	errorCode = ErrorCode::SUCCESS;
 	MapElem mapElem;
@@ -44,11 +54,11 @@ MapElem GetMapElementFromString(const std::string& line, ErrorCode& errorCode)
 	return mapElem;
 }
 
-std::map<mapKeyType, mapValueType> ReadMapFromFile(const std::string& fileName, ErrorCode& errorCode)
+std::map<mapKeyType, mapValueType> ReadMapFromFile(const std::string& fileName, ErrorCode& errorCode)//TODO: мб добавить, что читаем именно dictionary
 {
 	errorCode = ErrorCode::SUCCESS;
-	std::map<mapKeyType, mapValueType> outMap;
-	if (auto strm = OpenFileForReading(fileName))
+	std::map<mapKeyType, mapValueType> outMap;//TODO: мб это dictionaryMap
+	if (auto strm = OpenFileForReading(fileName))//TODO: уменьшить вложенность
 	{
 		std::string line;
 		MapElem mapElem;
@@ -68,7 +78,7 @@ std::map<mapKeyType, mapValueType> ReadMapFromFile(const std::string& fileName, 
 	return outMap;
 }
 
-std::map<mapKeyType, mapValueType> GetEngRusDictFromFile(const std::optional<std::string>& fileName, ErrorCode& errorCode)
+std::map<mapKeyType, mapValueType> GetEngRusDictFromFile(const std::optional<std::string>& fileName, ErrorCode& errorCode)//TOOD: фи-я названа неправильно, так как с испанскими словами тоже будет работать
 {
 	std::map<mapKeyType, mapValueType> outMap;
 	if (!fileName)
@@ -92,7 +102,6 @@ std::optional<mapValueType> GetValueFromDictByKey(const std::map<mapKeyType, map
 
 void PrintValueFromDictToCout(const mapValueType& value)
 {
-//	std::copy(value.begin(), value.end(), std::ostream_iterator<std::string>(std::cout, ", "));
 	std::copy(value.begin(), (value.begin() + value.size() - 1), std::ostream_iterator<std::string>(std::cout, ", "));
 	std::copy((value.begin() + value.size() - 1), (value.begin() + value.size()), std::ostream_iterator<std::string>(std::cout, ""));
 }
@@ -106,16 +115,16 @@ void InsertValueToDict(std::map<mapKeyType, mapValueType>& dict, mapKeyType key,
 void OpenSession(std::istream& cin, std::map<mapKeyType, mapValueType>& dict, ErrorCode& errorCode)
 {
 	std::cout << "Введите слово(фразу) на английском языке или \"...\" для завершения" << std::endl;
-	std::string userInpStr;
+	std::string userInpStr;//TODO: нужно ограничить хону видимости переменной
 	while (true)
 	{
 		userInpStr = "";
 		std::getline(cin, userInpStr);
 		if (userInpStr == "...") break;
-		if (!userInpStr.empty())
+		if (!userInpStr.empty())//TODO: инвертировать условние и если empty, то делать continue, это уменьшит уровень вложенности
 		{
 			// поиск строки в словаре
-			auto keyValue = GetValueFromDictByKey(dict, userInpStr);
+			auto keyValue = GetValueFromDictByKey(dict, userInpStr);// TODO: переменную переименовать на "перевод"
 			if (keyValue)
 			{
 				// вывести значение по ключу
@@ -128,11 +137,11 @@ void OpenSession(std::istream& cin, std::map<mapKeyType, mapValueType>& dict, Er
 				std::vector<std::string> vecUserAnsw;
 				std::string strUserAnsw;
 				std::getline(std::cin, strUserAnsw);
-				if (!strUserAnsw.empty())
+				if (!strUserAnsw.empty())//TODO: если строка пустая, уже можно вывести сообщение о проигнорированном слове и выйти из цикла
 				{
 					vecUserAnsw.push_back(strUserAnsw);
 				}
-//				copy(std::istream_iterator<std::string>(std::cin), std::istream_iterator<std::string>(), inserter(vecUserAnsw, vecUserAnsw.end()));
+				//TODO: уменьшить вложенность за счет continue/break и декомпозиии функции на более мелкие для читаемости кода
 				if (vecUserAnsw.empty())
 				{
 					std::cout << "Слово \"" << userInpStr << "\" проигнорировано." << std::endl;
@@ -141,7 +150,7 @@ void OpenSession(std::istream& cin, std::map<mapKeyType, mapValueType>& dict, Er
 				{
 					// добавить неизвестное слово в словарь, изменить признак изменения словаря
 					InsertValueToDict(dict, userInpStr, vecUserAnsw);
-					errorCode = ErrorCode::SUCCESS_MAP_CHANGED;
+					errorCode = ErrorCode::SUCCESS_MAP_CHANGED;//TODO: почему в errorCode мы кладем успешное состояние программы?
 					std::cout << "Слово \"" << userInpStr << "\" сохранено в словаре как \"";
 					// вывести значение по ключу
 					PrintValueFromDictToCout(vecUserAnsw);
@@ -154,7 +163,7 @@ void OpenSession(std::istream& cin, std::map<mapKeyType, mapValueType>& dict, Er
 
 bool NeedToSaveDict()
 {
-	std::string userAnswer;
+	std::string userAnswer;//TODO: нужно ограничить хону видимости переменной
 	while (true)
 	{
 		std::cout << "Словарь был изменен. Вы хотите сохранить изменения? (Y/N)" << std::endl;
@@ -172,7 +181,7 @@ bool NeedToSaveDict()
 
 void SaveDictToFile(const std::optional<std::string>& fileName, const std::map<mapKeyType, mapValueType>& dict, ErrorCode& errorCode)
 {
-	const std::string DEFAULT_FILENAME = "dict.txt";
+	const std::string DEFAULT_FILENAME = "dict.txt"; // TODO: разобраться с сохранением в словарь, чтобы работало
 	std::string fileToOpen = fileName ? *fileName : DEFAULT_FILENAME;
 	std::ofstream outputFile(fileToOpen);
 	if (outputFile.is_open())
@@ -181,6 +190,7 @@ void SaveDictToFile(const std::optional<std::string>& fileName, const std::map<m
 		{
 			outputFile << key;
 			std::copy(value.begin(), value.end(), std::ostream_iterator<std::string>(outputFile, " "));
+			outputFile << " ";
 			outputFile << std::endl;
 		}
 		outputFile.flush();
