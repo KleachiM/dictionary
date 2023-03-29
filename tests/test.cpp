@@ -6,96 +6,96 @@ TEST_CASE("parse args")
 	std::string param1 = "progName";
 	std::string param2 = "fileName";
 	std::string param3 = "bad param";
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	char* tstArgv[] = {param1.data(), param2.data(), NULL};
 	char* badArgv[] = {param1.data(), param2.data(), param3.data(), NULL};
 	REQUIRE(ParseArgs(2, tstArgv, errorCode) == "fileName");
 	REQUIRE(ParseArgs(1, tstArgv, errorCode) == std::nullopt);
 	REQUIRE(ParseArgs(3, badArgv, errorCode) == std::nullopt);
-	REQUIRE(errorCode == ErrorCode::BAD_ARGS_COUNT);
+	REQUIRE(errorCode == ProgramState::BAD_ARGS_COUNT);
 }
 
-// GetMapElementFromString
-TEST_CASE("GetMapElementFromString, good scenario (one val)")
+// MakePairFromStringLine
+TEST_CASE("MakePairFromStringLine, good scenario (one val)")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	MapElem expectedMapElem = {"key", {"value"}};
-	MapElem retMapElem = GetMapElementFromString("key value", errorCode);
+	MapElem retMapElem = MakePairFromStringLine("key@#value", errorCode);
 	REQUIRE(expectedMapElem.key == retMapElem.key);
 	REQUIRE(expectedMapElem.value == retMapElem.value);
 }
 
-TEST_CASE("GetMapElementFromString, good scenario (many val)")
+TEST_CASE("MakePairFromStringLine, good scenario (many val)")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	MapElem expectedMapElem = {"key", {"value1", "value2"}};
-	MapElem retMapElem = GetMapElementFromString("key value1 value2", errorCode);
+	MapElem retMapElem = MakePairFromStringLine("key@#value1@#value2", errorCode);
 	REQUIRE(expectedMapElem.key == retMapElem.key);
 	REQUIRE(expectedMapElem.value == retMapElem.value);
 }
 
-TEST_CASE("GetMapElementFromString, empty line")
+TEST_CASE("MakePairFromStringLine, empty line")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	MapElem expectedMapElem = {"key", {"value"}};
-	MapElem retMapElem = GetMapElementFromString("", errorCode);
-	REQUIRE(errorCode == ErrorCode::READ_EMPTY_LINE_FROM_FILE);
+	MapElem retMapElem = MakePairFromStringLine("", errorCode);
+	REQUIRE(errorCode == ProgramState::READ_EMPTY_LINE_FROM_FILE);
 }
 
-TEST_CASE("GetMapElementFromString, only key")
+TEST_CASE("MakePairFromStringLine, only key")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	MapElem expectedMapElem = {"key", {"value"}};
-	MapElem retMapElem = GetMapElementFromString("key", errorCode);
-	REQUIRE(errorCode == ErrorCode::READ_MAP_FROM_FILE_ERROR);
+	MapElem retMapElem = MakePairFromStringLine("key", errorCode);
+	REQUIRE(errorCode == ProgramState::READ_MAP_FROM_FILE_ERROR);
 }
 
-// ReadMapFromFile
-TEST_CASE("ReadMapFromFile, not existing file")
+// ReadDictionaryFromFile
+TEST_CASE("ReadDictionaryFromFile, not existing file")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	std::map<mapKeyType, mapValueType> expectedMap;
-	REQUIRE(ReadMapFromFile("./files/notExist.txt", errorCode) == expectedMap);
-	REQUIRE(errorCode == ErrorCode::FILE_OPENING_ERROR);
+	REQUIRE(ReadDictionaryFromFile("./files/notExist.txt", errorCode) == expectedMap);
+	REQUIRE(errorCode == ProgramState::FILE_OPENING_ERROR);
 }
 
-TEST_CASE("ReadMapFromFile, empty file")
+TEST_CASE("ReadDictionaryFromFile, empty file")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	std::map<mapKeyType, mapValueType> expectedMap;
-	REQUIRE(ReadMapFromFile("../../tests/files/empty.txt", errorCode) == expectedMap);
-	REQUIRE(errorCode == ErrorCode::SUCCESS);
+	REQUIRE(ReadDictionaryFromFile("../../tests/files/empty.txt", errorCode) == expectedMap);
+	REQUIRE(errorCode == ProgramState::SUCCESS);
 }
 
-TEST_CASE("ReadMapFromFile, file with empty line")
+TEST_CASE("ReadDictionaryFromFile, file with empty line")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	std::map<mapKeyType, mapValueType> expectedMap =
 		{
 			{ "cat", { "кошка" } },
 			{"dog", {"собака"}},
 			{"lion", {"лев"}}
 		};
-	REQUIRE(ReadMapFromFile("../../tests/files/fileWithEmptyLine.txt", errorCode) == expectedMap);
-	REQUIRE(errorCode == ErrorCode::SUCCESS);
+	REQUIRE(ReadDictionaryFromFile("../../tests/files/fileWithEmptyLine.txt", errorCode) == expectedMap);
+	REQUIRE(errorCode == ProgramState::SUCCESS);
 }
 
-TEST_CASE("ReadMapFromFile, file with not valid line")
+TEST_CASE("ReadDictionaryFromFile, file with not valid line")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	std::map<mapKeyType, mapValueType> expectedMap =
 		{
 			{ "cat", { "кошка" } },
 			{"dog", {"собака"}},
 			{"lion", {"лев"}}
 		};
-	REQUIRE(ReadMapFromFile("../../tests/files/fileWithNotValidLine.txt", errorCode) == expectedMap);
-	REQUIRE(errorCode == ErrorCode::SUCCESS);
+	REQUIRE(ReadDictionaryFromFile("../../tests/files/fileWithNotValidLine.txt", errorCode) == expectedMap);
+	REQUIRE(errorCode == ProgramState::SUCCESS);
 }
 
-TEST_CASE("ReadMapFromFile, valid file")
+TEST_CASE("ReadDictionaryFromFile, valid file")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	std::map<mapKeyType, mapValueType> expectedMap =
 		{
 			{ "cat", { "кошка" , "кот"} },
@@ -103,65 +103,64 @@ TEST_CASE("ReadMapFromFile, valid file")
 			{"bird", {"птица"}},
 			{"lion", {"лев"}}
 		};
-	REQUIRE(ReadMapFromFile("../../tests/files/validFile.txt", errorCode) == expectedMap);
-	REQUIRE(errorCode == ErrorCode::SUCCESS);
+	REQUIRE(ReadDictionaryFromFile("../../tests/files/validFile.txt", errorCode) == expectedMap);
+	REQUIRE(errorCode == ProgramState::SUCCESS);
 }
 
-// GetEngRusDictFromFile
-//TODO: доделать тесты отсюда
-TEST_CASE("GetEngRusDictFromFile, not specified file")
+// GetDictFromFile
+TEST_CASE("GetDictFromFile, not specified file")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	std::map<mapKeyType, mapValueType> expectedMap;
-	REQUIRE(GetEngRusDictFromFile(std::nullopt, errorCode) == expectedMap);
-	REQUIRE(errorCode == ErrorCode::SUCCESS);
+	REQUIRE(GetDictFromFile(std::nullopt, errorCode) == expectedMap);
+	REQUIRE(errorCode == ProgramState::SUCCESS);
 }
 
-TEST_CASE("GetEngRusDictFromFile, not existing file")
+TEST_CASE("GetDictFromFile, not existing file")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	std::map<mapKeyType, mapValueType> expectedMap;
-	REQUIRE(GetEngRusDictFromFile("notExist.txt", errorCode) == expectedMap);
-	REQUIRE(errorCode == ErrorCode::FILE_OPENING_ERROR);
+	REQUIRE(GetDictFromFile("notExist.txt", errorCode) == expectedMap);
+	REQUIRE(errorCode == ProgramState::FILE_OPENING_ERROR);
 }
 
-TEST_CASE("GetEngRusDictFromFile, empty file")
+TEST_CASE("GetDictFromFile, empty file")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	std::map<mapKeyType, mapValueType> expectedMap;
-	REQUIRE(GetEngRusDictFromFile("../../tests/files/empty.txt", errorCode) == expectedMap);
-	REQUIRE(errorCode == ErrorCode::SUCCESS);
+	REQUIRE(GetDictFromFile("../../tests/files/empty.txt", errorCode) == expectedMap);
+	REQUIRE(errorCode == ProgramState::SUCCESS);
 }
 
-TEST_CASE("GetEngRusDictFromFile, file with empty line")
+TEST_CASE("GetDictFromFile, file with empty line")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	std::map<mapKeyType, mapValueType> expectedMap =
 		{
 			{ "cat", { "кошка" } },
 			{"dog", {"собака"}},
 			{"lion", {"лев"}}
 		};
-	REQUIRE(GetEngRusDictFromFile("../../tests/files/fileWithEmptyLine.txt", errorCode) == expectedMap);
-	REQUIRE(errorCode == ErrorCode::SUCCESS);
+	REQUIRE(GetDictFromFile("../../tests/files/fileWithEmptyLine.txt", errorCode) == expectedMap);
+	REQUIRE(errorCode == ProgramState::SUCCESS);
 }
 
-TEST_CASE("GetEngRusDictFromFile, file with not valid line")
+TEST_CASE("GetDictFromFile, file with not valid line")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	std::map<mapKeyType, mapValueType> expectedMap =
 		{
 			{ "cat", { "кошка" } },
 			{"dog", {"собака"}},
 			{"lion", {"лев"}}
 		};
-	REQUIRE(GetEngRusDictFromFile("../../tests/files/fileWithNotValidLine.txt", errorCode) == expectedMap);
-	REQUIRE(errorCode == ErrorCode::SUCCESS);
+	REQUIRE(GetDictFromFile("../../tests/files/fileWithNotValidLine.txt", errorCode) == expectedMap);
+	REQUIRE(errorCode == ProgramState::SUCCESS);
 }
 
-TEST_CASE("GetEngRusDictFromFile, valid file")
+TEST_CASE("GetDictFromFile, valid file")
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
+	ProgramState errorCode = ProgramState::SUCCESS;
 	std::map<mapKeyType, mapValueType> expectedMap =
 		{
 			{ "cat", { "кошка" , "кот"} },
@@ -169,8 +168,8 @@ TEST_CASE("GetEngRusDictFromFile, valid file")
 			{"bird", {"птица"}},
 			{"lion", {"лев"}}
 		};
-	REQUIRE(GetEngRusDictFromFile("../../tests/files/validFile.txt", errorCode) == expectedMap);
-	REQUIRE(errorCode == ErrorCode::SUCCESS);
+	REQUIRE(GetDictFromFile("../../tests/files/validFile.txt", errorCode) == expectedMap);
+	REQUIRE(errorCode == ProgramState::SUCCESS);
 }
 
 // GetValueFromDictByKey
@@ -283,4 +282,51 @@ TEST_CASE("InsertValueToDict (value with space)")
 
 	InsertValueToDict(mapBeforeInsert, insertedKey, insertedValue);
 	REQUIRE(mapBeforeInsert == mapAfterInsert);
+}
+
+TEST_CASE("parse string with delimiter")
+{
+	std::string strWithDelim = "cat@#кошка";
+	std::vector<std::string> parsedString = {"cat", "кошка"};
+	std::vector<std::string> tstV = ParseStringByDelimiter(strWithDelim, DELIMITER);
+	REQUIRE(tstV == parsedString);
+}
+
+TEST_CASE("parse phrase with delimiter")
+{
+	std::string strWithDelim = "the red square@#красная площадь@#площадь красная";
+	std::vector<std::string> parsedString = {"the red square", "красная площадь", "площадь красная"};
+	std::vector<std::string> tstV = ParseStringByDelimiter(strWithDelim, DELIMITER);
+	REQUIRE(tstV == parsedString);
+}
+
+TEST_CASE("parse not valid string")
+{
+	std::string badString = "@#";
+	std::vector<std::string> tstV = ParseStringByDelimiter(badString, DELIMITER);
+	REQUIRE(tstV.size() < 2);
+}
+
+SCENARIO("phrase can be written in file and read")
+{
+	GIVEN("phrase and its translation")
+	{
+		std::string phrase = "the red square";
+		std::vector<std::string> translate = { "красная площадь" };
+		std::map<mapKeyType, mapValueType> dict;
+		ProgramState errorCode = ProgramState::SUCCESS;
+		WHEN("phrase write in dict and dict write in file")
+		{
+			// записать фразу и ее перевод в словарь
+			InsertValueToDict(dict, phrase, translate);
+			// записать словарь в файл
+			SaveDictToFile("tstDict.txt", dict, errorCode);
+			THEN("readed frase and its translation are equal")
+			{
+				std::map<mapKeyType, mapValueType> readedDict = GetDictFromFile("tstDict.txt", errorCode);
+				auto findedValue = GetValueFromDictByKey(readedDict, phrase);
+				REQUIRE(*findedValue == translate);
+			}
+		}
+	}
 }

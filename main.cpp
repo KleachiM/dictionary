@@ -3,32 +3,32 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	ErrorCode errorCode = ErrorCode::SUCCESS;
-	auto fileName = ParseArgs(argc, argv, errorCode);
+	ProgramState programState = ProgramState::SUCCESS;
+	auto fileName = ParseArgs(argc, argv, programState);
 
-	if (errorCode == ErrorCode::BAD_ARGS_COUNT)
+	if (programState == ProgramState::BAD_ARGS_COUNT)
 	{
 		std::cout << "Неправильное количество аргументов" << std::endl;
 		std::cout << "Пример вызова функции: ./dictionary <путь к файлу со словарем (при наличии)>" << std::endl;
 		return EXIT_FAILURE;
 	}
 
-	map<mapKeyType , mapValueType> dict = GetEngRusDictFromFile(fileName, errorCode);
+	map<mapKeyType , mapValueType> dict = GetDictFromFile(fileName, programState);
 
-	if (errorCode == ErrorCode::FILE_OPENING_ERROR)
+	if (programState == ProgramState::FILE_OPENING_ERROR)
 	{
 		std::cout << "Невозможно прочитать файл " << *fileName << std::endl;
 		return EXIT_FAILURE;
 	}
 
-	OpenSession(std::cin, dict, errorCode);
+	OpenSession(std::cin, dict, programState);
 
-	if (errorCode == ErrorCode::SUCCESS_MAP_CHANGED)
+	if (programState == ProgramState::SUCCESS_MAP_CHANGED)
 	{
 		if (NeedToSaveDict())
 		{
-			SaveDictToFile(fileName, dict, errorCode);
-			if (errorCode == ErrorCode::FILE_WRITING_ERROR)
+			SaveDictToFile(fileName, dict, programState);
+			if (programState == ProgramState::FILE_WRITING_ERROR)
 			{
 				std::cout << "Невозможно записать изменения в файл " << *fileName << std::endl;
 				return EXIT_FAILURE;

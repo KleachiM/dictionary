@@ -9,7 +9,7 @@ target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
 #        COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/test.sh
 #        )
 
-#add_custom_command(TARGET tests
-#            POST_BUILD
-#            COMMAND ../tests/tests
-#        )
+add_custom_command(TARGET tests
+            POST_BUILD
+            COMMAND ../tests/tests
+        )

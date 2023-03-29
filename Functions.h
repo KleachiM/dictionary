@@ -8,8 +8,11 @@
 #include <vector>
 #include <sstream>
 #include <cstring>
+#include <regex>
 
-enum class ErrorCode
+const std::string DELIMITER = "@#";
+
+enum class ProgramState
 {
 	SUCCESS,
 	SUCCESS_MAP_CHANGED,
@@ -29,14 +32,16 @@ struct MapElem
 	mapValueType value;
 };
 
-std::optional<std::string> ParseArgs(int argc, char* argv[], ErrorCode& errorCode);
+std::optional<std::string> ParseArgs(int argc, char* argv[], ProgramState& errorCode);
 std::ifstream OpenFileForReading(const std::string & fileName);
-MapElem GetMapElementFromString(const std::string& line, ErrorCode& errorCode);
-std::map<mapKeyType, mapValueType> ReadMapFromFile(const std::string& fileName, ErrorCode& errorCode);
-std::map<mapKeyType, mapValueType> GetEngRusDictFromFile(const std::optional<std::string>& fileName, ErrorCode& errorCode);
-void OpenSession(std::istream& cin, std::map<mapKeyType, mapValueType>& dict, ErrorCode& errorCode);
+MapElem MakePairFromStringLine(const std::string& line, ProgramState& errorCode);
+std::map<mapKeyType, mapValueType> ReadDictionaryFromFile(const std::string& fileName, ProgramState& errorCode);
+std::map<mapKeyType, mapValueType> GetDictFromFile(const std::optional<std::string>& fileName, ProgramState& errorCode);
+void OpenSession(std::istream& cin, std::map<mapKeyType, mapValueType>& dict, ProgramState& errorCode);
 std::optional<mapValueType> GetValueFromDictByKey(const std::map<mapKeyType, mapValueType>& dict, const std::string& key);
 void InsertValueToDict(std::map<mapKeyType, mapValueType>& dict, mapKeyType key, const mapValueType& value);
 bool NeedToSaveDict();
-void SaveDictToFile(const std::optional<std::string>& fileName, const std::map<mapKeyType, mapValueType>& dict, ErrorCode& errorCode);
+void SaveDictToFile(const std::optional<std::string>& fileName, const std::map<mapKeyType, mapValueType>& dict, ProgramState& errorCode);
+std::optional<std::vector<std::string>> GetNewTranslateFromUserInput(std::istream& istream);
+std::vector<std::string> ParseStringByDelimiter(const std::string& string, const std::string& delimiter);
 #endif //DICTIONARY_FUNCTIONS_H
